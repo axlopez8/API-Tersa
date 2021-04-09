@@ -64,7 +64,7 @@ router.delete('/personas/:id', async (req, res) => {
 
 //Modulo de Productos
 router.get('/productos', (req,res) =>{
-    mysqlConnection.query('SELECT * FROM productos', (error, rows, fliends) => {
+    mysqlConnection.query('SELECT idProducto, Nombre, Cantidad, Precio_Compra, Precio_Venta, FK_Proveedor, P.Nombre_Empresa FROM productos INNER JOIN proveedores AS P ON FK_Proveedor=P.idProveedor ', (error, rows, fliends) => {
         if(!error){
             res.json(rows);
         } else {
@@ -74,9 +74,9 @@ router.get('/productos', (req,res) =>{
 });
 router.get('/productos/:id', (req, res) => {
     const { id } = req.params;
-    mysqlConnection.query('SELECT * FROM productos WHERE idProducto = ?', [id], (error, rows, fliends) =>{
+    mysqlConnection.query('SELECT idProducto, Nombre, Cantidad, Precio_Compra, Precio_Venta, FK_Proveedor, P.Nombre_Empresa FROM productos INNER JOIN proveedores AS P ON FK_Proveedor=P.idProveedor WHERE idProducto = ?', [id], (error, rows, fliends) =>{
         if(!error){
-            res.json(rows[0]);
+            res.json(rows[0]); 
         } else {
             console.log(error);
         }
@@ -107,6 +107,7 @@ router.put('/productos/:id', async (req, res) =>{
         }
     });
 });
+
 
 //Ruta de Borrado 
 router.delete('/productos/:id', async (req, res) => {
@@ -180,7 +181,7 @@ router.delete('/clientes/:id', async (req, res) => {
 
 //Modulo de Proveedores
 router.get('/proveedores', (req,res) =>{
-    mysqlConnection.query('SELECT * FROM proveedores', (error, rows, fliends) => {
+    mysqlConnection.query('SELECT idProveedor, Nombre_Empresa, NIT_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona, P.Nombres FROM proveedores INNER JOIN personas AS P ON FK_Persona=idPersona', (error, rows, fliends) => {
         if(!error){
             res.json(rows);
         } else {
@@ -190,7 +191,7 @@ router.get('/proveedores', (req,res) =>{
 });
 router.get('/proveedores/:id', (req, res) => {
     const { id } = req.params;
-    mysqlConnection.query('SELECT * FROM proveedores WHERE idProveedor = ?', [id], (error, rows, fliends) =>{
+    mysqlConnection.query('SELECT idProveedor, Nombre_Empresa, NIT_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona, P.Nombres FROM proveedores INNER JOIN personas AS P ON FK_Persona=idPersona WHERE idProveedor = ?', [id], (error, rows, fliends) =>{
         if(!error){
             res.json(rows[0]);
         } else {
@@ -200,9 +201,9 @@ router.get('/proveedores/:id', (req, res) => {
 });
 // Ruta de Creacion
 router.post('/proveedores', async (req, res) => {
-    const {  Nombre_Empresa, Nit_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona} = req.body;
+    const {  Nombre_Empresa, NIT_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona} = req.body;
     const SetenciaSQL = 'INSERT INTO proveedores (idProveedor, Nombre_Empresa, Nit_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona) VALUES (NULL, ?, ?, ?, ?, ?)';
-    mysqlConnection.query(SetenciaSQL,[ Nombre_Empresa, Nit_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona], (err, rows, fields) => {
+    mysqlConnection.query(SetenciaSQL,[ Nombre_Empresa, NIT_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona], (err, rows, fields) => {
         if(!err){
             res.json({Status: 'Proveedor Registrado'});
         }else{
@@ -212,10 +213,10 @@ router.post('/proveedores', async (req, res) => {
 });
 //Ruta de actualizacion
 router.put('/proveedores/:id', async (req, res) =>{
-    const {  Nombre_Empresa, Nit_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona} = req.body;
+    const {  Nombre_Empresa, NIT_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona} = req.body;
     const { id } = req.params;
     const SetenciaSQL = 'UPDATE proveedores SET Nombre_Empresa = ?, Nit_Empresa = ?, Telefono_Empresa = ?, Email_Empresa = ?, FK_Persona = ?  WHERE idProveedor = ?';
-    mysqlConnection.query(SetenciaSQL, [ Nombre_Empresa, Nit_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona, id], (err, rows, fields) => {
+    mysqlConnection.query(SetenciaSQL, [ Nombre_Empresa, NIT_Empresa, Telefono_Empresa, Email_Empresa, FK_Persona, id], (err, rows, fields) => {
         if(!err){
             res.json({Status: "Proveedor Acutalizado"});
         }else{
@@ -238,7 +239,7 @@ router.delete('/proveedores/:id', async (req, res) => {
 
 //Modulo de Compras
 router.get('/compras', (req,res) =>{
-    mysqlConnection.query('SELECT * FROM compras', (error, rows, fliends) => {
+    mysqlConnection.query('SELECT  C.idCompra, C.Total_Monto, C.Total_Pagado, P.Nombre_Empresa, C.FK_Proveedor, FK_Estado FROM compras AS C INNER JOIN proveedores AS P ON C.FK_Proveedor= P.idProveedor ORDER BY C.idCompra', (error, rows, fliends) => {
         if(!error){
             res.json(rows);
         } else {
@@ -248,7 +249,7 @@ router.get('/compras', (req,res) =>{
 });
 router.get('/compras/:id', (req, res) => {
     const { id } = req.params;
-    mysqlConnection.query('SELECT * FROM compras WHERE idCompra = ?', [id], (error, rows, fliends) =>{
+    mysqlConnection.query('SELECT  C.idCompra, C.Total_Monto, C.Total_Pagado, P.Nombre_Empresa, C.FK_Proveedor, FK_Estado FROM compras AS C INNER JOIN proveedores AS P ON C.FK_Proveedor= P.idProveedor  WHERE idCompra = ? ORDER BY C.idCompra', [id], (error, rows, fliends) =>{
         if(!error){
             res.json(rows[0]);
         } else {
@@ -260,9 +261,10 @@ router.get('/compras/:id', (req, res) => {
 router.post('/compras', async (req, res) => {
     const { Total_Monto, Total_Pagado, FK_Proveedor, FK_Estado} = req.body;
     const SetenciaSQL = 'INSERT INTO compras (idCompra, Total_Monto, Total_Pagado, FK_Proveedor, FK_Estado) VALUES (NULL, ?, ?,?,?)';
-    mysqlConnection.query(SetenciaSQL,[ Total_Monto, Total_Pagado, FK_Proveedor, FK_Estado], (err, rows, fields) => {
+    mysqlConnection.query(SetenciaSQL,[ Total_Monto, Total_Pagado, FK_Proveedor, FK_Estado], (err, result) => {
         if(!err){
-            res.json({Status: 'Compra Registrada'});
+            const id=result.insertId
+            res.json({Status: 'Compra Registrada',compra:id});
         }else{
             console.log(err)
         }
@@ -274,7 +276,7 @@ router.get('/detalles_compras/:id', (req, res) => {
     const { id } = req.params;
     mysqlConnection.query('SELECT D.Cantidad, P.Nombre, D.sub_total, P.Precio_Compra FROM detalles_compras AS D INNER JOIN productos AS P ON D.FK_Producto = P.idProducto WHERE D.FK_Compra = ?', [id], (error, rows, fliends) =>{
         if(!error){
-            res.json(rows[0]);
+            res.json(rows);
         } else {
             console.log(error);
         }
@@ -295,7 +297,7 @@ router.post('/detalles_compras', async (req, res) => {
 
 //Modulo de Ventas
 router.get('/ventas', (req,res) =>{
-    mysqlConnection.query('SELECT * FROM ventas', (error, rows, fliends) => {
+    mysqlConnection.query('SELECT idVenta, Direccion_Venta, FK_Cliente, Total_monto, total_pagado, FK_Estado, P.Nombres, P.Apellidos, P.NIT, P.Telefono FROM ventas INNER JOIN clientes AS C ON FK_Cliente=C.idCliente INNER JOIN personas AS P ON C.idCliente=P.idPersona', (error, rows, fliends) => {
         if(!error){
             res.json(rows);
         } else {
@@ -305,7 +307,7 @@ router.get('/ventas', (req,res) =>{
 });
 router.get('/ventas/:id', (req, res) => {
     const { id } = req.params;
-    mysqlConnection.query('SELECT * FROM ventas WHERE idVenta = ?', [id], (error, rows, fliends) =>{
+    mysqlConnection.query('SELECT idVenta, Direccion_Venta, FK_Cliente, Total_monto, total_pagado, FK_Estado, P.Nombres, P.Apellidos, P.NIT, P.Telefono FROM ventas INNER JOIN clientes AS C ON FK_Cliente=C.idCliente INNER JOIN personas AS P ON C.idCliente=P.idPersona WHERE idVenta = ?', [id], (error, rows, fliends) =>{
         if(!error){
             res.json(rows[0]);
         } else {
@@ -317,9 +319,11 @@ router.get('/ventas/:id', (req, res) => {
 router.post('/ventas', async (req, res) => {
     const { FK_Cliente, Direccion_Venta, Total_monto, total_pagado, FK_Estado} = req.body;
     const SetenciaSQL = 'INSERT INTO ventas(idVenta, FK_Cliente, Direccion_Venta, Total_monto, total_pagado, FK_Estado) VALUES (null,?,?,?,?,?)';
-    mysqlConnection.query(SetenciaSQL,[ FK_Cliente, Direccion_Venta, Total_monto, total_pagado, FK_Estado], (err, rows, fields) => {
+    mysqlConnection.query(SetenciaSQL,[ FK_Cliente, Direccion_Venta, Total_monto, total_pagado, FK_Estado], (err, result) => {
+        
         if(!err){
-            res.json({Status: 'Venta Registrada'});
+            const id=result.insertId
+            res.json({Status: 'Venta Registrada', venta:id});
         }else{
             console.log(err)
         }
@@ -331,7 +335,7 @@ router.get('/detalles_ventas/:id', (req, res) => {
     const { id } = req.params;
     mysqlConnection.query('SELECT idDetalle_Venta, P.Nombre, P.Precio_Venta, DV.Cantidad, DV.Sub_Total FROM detalles_ventas AS DV INNER JOIN productos AS P ON DV.FK_Producto=P.idProducto WHERE FK_Venta=?', [id], (error, rows, fliends) =>{
         if(!error){
-            res.json(rows[0]);
+            res.json(rows);
         } else {
             console.log(error);
         }
