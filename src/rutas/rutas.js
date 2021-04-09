@@ -433,11 +433,22 @@ router.put('/usuariosc/:id', async (req, res) =>{
         }
     });
 });
+//Ruta de Borrado 
+router.delete('/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    mysqlConnection.query('DELETE FROM usuarios WHERE idUsuario = ? ', [id], (err, rows, fields) => {
+        if(!err){
+            res.json({Status: "Usuario borrado"});
+        }else{
+            console.log(err)
+        }
+    });
+});
 // Ruta de Login
-router.get('/login', async (req, res) => {
-    const { usuario, contraseña} = req.body;
-    const SetenciaSQL = 'SELECT C.idUsuario, C.usuario, P.idPersona, P.Nombres, P.Apellidos, P.DPI, P.NIT, P.Telefono, P.Email  FROM usuarios AS C INNER JOIN personas AS P ON C.FK_Persona=P.idPersona WHERE C.usuario=? AND C.contraseña=MD5(?)';
-    mysqlConnection.query(SetenciaSQL,[usuario, contraseña], (err, rows, fields) => {
+router.post('/login', async (req, res) => {
+    const { usuario, pass} = req.body;
+    const SetenciaSQL = 'SELECT *  FROM usuarios WHERE usuario=? AND contraseña=?';
+    mysqlConnection.query(SetenciaSQL,[usuario, pass], (err, rows, fields) => {
         if(!err){
        
             if(rows.length==1){
